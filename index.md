@@ -20,6 +20,7 @@ Furthermore, Docker can be used to build Docker containers, and Podman can be us
 Internally, Podman uses Buildah to build [OCI](https://opencontainers.org/) containers, and it is possible to use Buildah directly if necessary.
 
 We build on top on the excellent [Apptainer documentation](https://apptainer.org/docs/user/main/index.html).
+We also take inspirationsl from [Octave's dockerfiles](https://github.com/gnu-octave/docker) which provide great example of HPC compatible containers of a complex scientific application.
 
 
 ## General principles
