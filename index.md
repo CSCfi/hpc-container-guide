@@ -23,6 +23,18 @@ We build on top on the excellent [Apptainer documentation](https://apptainer.org
 We also take inspirationsl from [Octave's dockerfiles](https://github.com/gnu-octave/docker) which provide great example of HPC compatible containers of a complex scientific application.
 
 
+## Reasons to use containers on HPC clusters
+Using containers on HPC clusters improve portability, consistency, reproducibility, and dependency management of scientific applications.
+By packaging applications and their dependencies, containers ensure consistent execution across different environments, reducing "works on my machine" issues and facilitating the movement of workloads between systems.
+This containerization approach greatly enhances reproducibility in scientific research, allowing researchers to share exact experimental environments and replicate results more easily.
+Additionally, containers effectively manage dependencies by encapsulating all necessary libraries, eliminating conflicts between software versions or incompatible libraries.
+This is particularly beneficial in multi-user HPC environments where diverse software requirements are common.
+
+Containers also reduce the load to the parallel file system on HPC clusters.
+Apptainer encapsulates entire software environments into single, compressed file, drastically reducing the number of files and disk space used on the parallel file system.
+Also, loading single large file requires fewer file system operations leading to faster startup time and less burden on the parallel file system.
+
+
 ## General principles
 We break down containerization into three acticities:
 
@@ -110,10 +122,10 @@ We should place container definitions into a separate repository instead of plac
 The separation makes the separation between the application source code and the container definitions explicit.
 
 <!--
-version controlling container definitions
-versioning containers
-storing containers into container registry
-automatically building containers.
+- version controlling container definitions
+- versioning containers
+- storing containers into container registry
+- automatically building containers.
 -->
 
 
@@ -305,3 +317,7 @@ We can pull the container with Apptainer as follows:
 ```sh
 apptainer pull app.sif docker://ghcr.io/<username>/app:0.2.0
 ```
+
+
+## Working with containers on HPC clusters
+We can either build the conta
