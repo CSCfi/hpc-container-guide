@@ -76,7 +76,7 @@ The following table explains our options where to install software.
 | `/tmp` | Use `/tmp` for temporary files during the build process and ensure these files are removed after the build completes. |
 | `/home`, `/root` | Avoid creating files to home directories, as Apptainer mounts them at runtime by default. |
 
-Given installation directory `$INSTALL_DIR`, the convention is to place executables to `$INSTALL_DIR/bin` directory, shared libraries to `$INSTALL_DIR/lib` directory, configurations `$INSTALL_DIR/etc` and headers to `$INSTALL_DIR/include`.
+Given installation directory `$PREFIX`, the convention is to place executables to `$PREFIX/bin` directory, shared libraries to `$PREFIX/lib` directory, configurations `$PREFIX/etc` and headers to `$PREFIX/include`.
 Ensure all installed files are world-readable.
 For more details about Linux file system convetions, see [File Hierarchy Standard (FHS)](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard).
 
