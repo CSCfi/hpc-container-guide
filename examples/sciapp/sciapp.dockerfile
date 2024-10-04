@@ -19,7 +19,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     rm -rf /var/lib/apt/lists/*
 
 # Install sciapp
-RUN SCIAPP_VERSION=0.1.0 && \
+RUN SCIAPP_VERSION=0.2.0 && \
     SCIAPP_URL=https://github.com/jaantollander/sciapp/archive/refs/tags/v${SCIAPP_VERSION}.tar.gz && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -27,5 +27,6 @@ RUN SCIAPP_VERSION=0.1.0 && \
     tar -xf sciapp.tar.gz && \
     cd sciapp-${SCIAPP_VERSION} && \
     make && \
-    mv build/main /usr/local/bin/app && \
+    make install PREFIX=/usr/local && \
+    cd / && \
     rm -rf /tmp/build

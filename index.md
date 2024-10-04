@@ -150,7 +150,7 @@ From: ubuntu:22.04
     rm -rf /var/lib/apt/lists/*
 
     # Install sciapp
-    SCIAPP_VERSION=0.1.0 && \
+    SCIAPP_VERSION=0.2.0 && \
     SCIAPP_URL=https://github.com/jaantollander/sciapp/archive/refs/tags/v${SCIAPP_VERSION}.tar.gz && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -158,7 +158,8 @@ From: ubuntu:22.04
     tar -xf sciapp.tar.gz && \
     cd sciapp-${SCIAPP_VERSION} && \
     make && \
-    mv build/main /usr/local/bin/app && \
+    make install PREFIX=/usr/local && \
+    cd / && \
     rm -rf /tmp/build
 ```
 
@@ -180,7 +181,7 @@ Let's create an input file `input.txt` with the following lines:
 Let's run the containerized application and supply path to the input and output files as arguments.
 
 ```sh
-apptainer exec app.sif app input.txt output.txt
+apptainer exec app.sif sciapp input.txt output.txt
 ```
 
 If everything worked correctly, the application produces an output file `output.txt` with the following output:
@@ -193,13 +194,13 @@ We can store Apptainer images to container registries that support [ORAS](https:
 
 ```sh
 apptainer registry login --username <username> oras://ghcr.io  # will prompt for an access token
-apptainer push app.sif oras://ghcr.io/<username>/app:0.1.0
+apptainer push app.sif oras://ghcr.io/<username>/app:0.2.0
 ```
 
 We can pull the container with Apptainer as follows:
 
 ```sh
-apptainer pull app.sif oras://ghcr.io/<username>/app:0.1.0
+apptainer pull app.sif oras://ghcr.io/<username>/app:0.2.0
 ```
 
 In the next examples, we build Docker container and OCI container with Podman for the same application and convert it to Apptainer container.
@@ -230,7 +231,7 @@ RUN export DEBIAN_FRONTEND=noninteractive && \
     rm -rf /var/lib/apt/lists/*
 
 # Install sciapp
-RUN SCIAPP_VERSION=0.1.0 && \
+RUN SCIAPP_VERSION=0.2.0 && \
     SCIAPP_URL=https://github.com/jaantollander/sciapp/archive/refs/tags/v${SCIAPP_VERSION}.tar.gz && \
     mkdir -p /tmp/build && \
     cd /tmp/build && \
@@ -238,20 +239,21 @@ RUN SCIAPP_VERSION=0.1.0 && \
     tar -xf sciapp.tar.gz && \
     cd sciapp-${SCIAPP_VERSION} && \
     make && \
-    mv build/main /usr/local/bin/app && \
+    make install PREFIX=/usr/local && \
+    cd / && \
     rm -rf /tmp/build
 ```
 
 Next, we build the container with Docker as follows:
 
 ```sh
-docker build --tag localhost/app:0.1.0 --file app.dockerfile .
+docker build --tag localhost/app:0.2.0 --file app.dockerfile .
 ```
 
 We can converting the Docker image into Apptainer image by saving the Docker image into an archive and building the Apptainer image from the archive as follows:
 
 ```sh
-docker save --output app.tar localhost/app:0.1.0
+docker save --output app.tar localhost/app:0.2.0
 apptainer build app.sif docker-archive://app.tar
 ```
 
@@ -262,14 +264,14 @@ For example, we can use GitHub Container Registry (GHCR) as follows:
 
 ```sh
 docker login --username <username> ghcr.io  # will prompt for an access token
-docker localhost/app:0.1.0 ghcr.io/<username>/app:0.1.0
-docker push ghcr.io/<username>/app:0.1.0
+docker localhost/app:0.2.0 ghcr.io/<username>/app:0.2.0
+docker push ghcr.io/<username>/app:0.2.0
 ```
 
 We can pull the container with Apptainer as follows:
 
 ```sh
-apptainer pull app.sif docker://ghcr.io/<username>/app:0.1.0
+apptainer pull app.sif docker://ghcr.io/<username>/app:0.2.0
 ```
 
 
@@ -278,13 +280,13 @@ We use the Dockerfile that we defined in the Docker example.
 We can build the container with Podman as follows:
 
 ```sh
-podman build --tag localhost/app:0.1.0 --file app.dockerfile .
+podman build --tag localhost/app:0.2.0 --file app.dockerfile .
 ```
 
 We can converting the OCI image into Apptainer image by saving the OCI image into an archive and building the Apptainer image from the archive as follows:
 
 ```sh
-podman save --output app.tar localhost/app:0.1.0
+podman save --output app.tar localhost/app:0.2.0
 apptainer build app.sif docker-archive://app.tar
 ```
 
@@ -293,12 +295,12 @@ For example, we can use GitHub Container Registry (GHCR) as follows:
 
 ```sh
 podman login --username <username> ghcr.io  # will prompt for an access token
-podman tag localhost/app:0.1.0 ghcr.io/<username>/app:0.1.0
-podman push ghcr.io/<username>/app:0.1.0
+podman tag localhost/app:0.2.0 ghcr.io/<username>/app:0.2.0
+podman push ghcr.io/<username>/app:0.2.0
 ```
 
 We can pull the container with Apptainer as follows:
 
 ```sh
-apptainer pull app.sif docker://ghcr.io/<username>/app:0.1.0
+apptainer pull app.sif docker://ghcr.io/<username>/app:0.2.0
 ```
