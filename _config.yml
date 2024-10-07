@@ -1,3 +1,4 @@
-theme: "jekyll-theme-hacker"
-markdown: "kramdown"
+theme: "just-the-docs"
+#theme: "jekyll-theme-hacker"
+#markdown: "kramdown"
 show_downloads: false
