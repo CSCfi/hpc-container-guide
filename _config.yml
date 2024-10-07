@@ -1,4 +1,3 @@
 theme: "jekyll-theme-cayman"
-#theme: "jekyll-theme-hacker"
 markdown: "kramdown"
 show_downloads: false

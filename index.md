@@ -59,6 +59,7 @@ Container definitions should explicitly define all software dependencies to ensu
 | [almalinux](https://hub.docker.com/_/almalinux) | DNF |
 | [redhat/ubi8](https://hub.docker.com/r/redhat/ubi8) | DNF |
 | [redhat/ubi9](https://hub.docker.com/r/redhat/ubi9) | DNF |
+| [E4S](https://e4s-project.github.io/download.html) | Spack |
 
 The table below contains recommendations for keeping containers simple, extensible, and compatible with Apptainer, Docker, and OCI containers.
 We can define containers for Docker and Podman using the Dockerfile format.
@@ -132,6 +133,8 @@ The separation makes the separation between the application source code and the 
 
 
 ## Example: Containerizing a scientific application
+![Illustration of an application in a container.](./images/hpc-containers.png)
+
 In the following examples, we demonstrate how to create and run a container for a small scientific application called [sciapp](https://github.com/jaantollander/sciapp).
 We demonstrate Apptainer, Docker and Podman.
 We install the dependencies to run and build `sciapp` and them we install `sciapp` itself by building it from the source.
