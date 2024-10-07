@@ -79,6 +79,8 @@ We can define containers for Docker and Podman using the Dockerfile format.
 
 It is best to avoid other keywords to keep containers simple and easier to convert to OCI container definitions which we discuss later.
 
+Inside the container, software is installed as the root user, therefore we don't need to use the `sudo` command.
+We should install all software to system locations.
 The following table explains our options where to install software.
 
 | Directory | Recommendation |
@@ -86,8 +88,8 @@ The following table explains our options where to install software.
 | `/usr` | Default directory where package managers install software. Executables and libraries are on the path by default. |
 | `/usr/local` | We can install software to `/usr/local`. Executables and libraries are on the path by default. |
 | `/opt` | We can install software to `/opt` but it requires modifying `PATH` and `LD_LIBRARY_PATH` for build and runtime. |
-| `/tmp` | Use `/tmp` for temporary files during the build process and ensure these files are removed after the build completes. |
-| `/home`, `/root` | Avoid creating files to home directories, as Apptainer mounts them at runtime by default. |
+| `/tmp` | Use `/tmp` for temporary files during the build process and ensure these files are removed after the build completes. Apptainer mounts it at runtime by default. |
+| `/home`, `/root` | Do not create files to the home directories. Apptainer mounts them at runtime by default. |
 
 Given installation directory `$PREFIX`, the convention is to place executables to `$PREFIX/bin` directory, shared libraries to `$PREFIX/lib` directory, configurations `$PREFIX/etc` and headers to `$PREFIX/include`.
 Ensure all installed files are world-readable.
