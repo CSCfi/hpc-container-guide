@@ -23,6 +23,19 @@ We build on top on the excellent [Apptainer documentation](https://apptainer.org
 We also take inspirationsl from [Octave's dockerfiles](https://github.com/gnu-octave/docker) which provide great example of HPC compatible containers of a complex scientific application.
 
 
+## Containerized application
+![Illustration of an application in a container.](./images/hpc-containers.png)
+
+The above figure illustrates a scientific application and its dependencies.
+When running a software normally without a container the application is installed to some user directory and the depedencies may come from system or user installed locations.
+
+The dashed line indicates the parts that are "containerized" when using a software container.
+Application and its dependencies are installed into the container.
+Directories that are outside of the container such as network directories and local disk must be bind mounted to the container to make them accessible from the container.
+Containerized software is invoked via a container runtime such Apptainer or Singularity.
+The host and guest OS can be different.
+
+
 ## Reasons to use containers on HPC clusters
 Using containers on HPC clusters improve portability, consistency, reproducibility, and dependency management of scientific applications.
 By packaging applications and their dependencies, containers ensure consistent execution across different environments, reducing "works on my machine" issues and facilitating the movement of workloads between systems.
@@ -133,8 +146,6 @@ The separation makes the separation between the application source code and the 
 
 
 ## Example: Containerizing a scientific application
-![Illustration of an application in a container.](./images/hpc-containers.png)
-
 In the following examples, we demonstrate how to create and run a container for a small scientific application called [sciapp](https://github.com/jaantollander/sciapp).
 We demonstrate Apptainer, Docker and Podman.
 We install the dependencies to run and build `sciapp` and them we install `sciapp` itself by building it from the source.
@@ -323,6 +334,7 @@ We can pull the container with Apptainer as follows:
 apptainer pull app.sif docker://ghcr.io/<username>/app:0.2.0
 ```
 
-
+<!--
 ## Working with containers on HPC clusters
-We can either build the conta
+Building and running container, cache location, bind mounts, fakeroot
+-->
