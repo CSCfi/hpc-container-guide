@@ -72,22 +72,22 @@ Container definitions should explicitly define all software dependencies to ensu
 | [almalinux](https://hub.docker.com/_/almalinux) | DNF |
 | [redhat/ubi8](https://hub.docker.com/r/redhat/ubi8) | DNF |
 | [redhat/ubi9](https://hub.docker.com/r/redhat/ubi9) | DNF |
-| [E4S](https://e4s-project.github.io/download.html) | Spack |
+| [E4S](https://e4s-project.github.io/download.html) | Spack, APT |
 
 The table below contains recommendations for keeping containers simple, extensible, and compatible with Apptainer, Docker, and OCI containers.
 We can define containers for Docker and Podman using the Dockerfile format.
 
 | [Apptainer](https://apptainer.org/docs/user/main/definition_files.html) | [Dockerfile](https://docs.docker.com/reference/dockerfile/) | Recommendation |
 | - | - | - |
-| `.def` | `.dockerfile` | File extension to use for the definition file. Avoid using plain `Dockerfile` because complex applications may require multiple definition files. |
-| `From` | `FROM` | Use normally |
+| `.def` | `.dockerfile` | File extension to use for the definition file. Plain `Dockerfile` is not always sufficient as complex applications may require multiple definition files. |
 | `Bootstrap` | - | Use normally |
-| `%post` | `RUN` | Use normally to run shell commands with `/bin/sh` to build the container. |
-| `%environment` | `ENV` | Use to define runtime environment variables |
+| `From` | `FROM` | Use normally |
 | `%arguments` | `ARG` | We can use build arguments to specify default software versions when changing the version does not require adding control flow to the build scripts. We can override default values using the `--build-arg` flag for the build command. |
+| `%files` | `COPY` | We can add configuration files from the host to container. However, we should download dependencies via the network in `%post` or `RUN`. |
+| `%post` | `RUN` | Use normally to run shell commands (`/bin/sh` by default) to build the container. |
+| `%environment` | `ENV` | Use to define runtime environment variables. The `ENV` directive applies during build time, but `%environment` applies only in runtime. |
 | `%labels` | `LABEL` | Add metadata to container as name-value pairs. |
-| `%files` | `COPY` | Avoid copying files from host to container. Instead download dependencies via the network in `%post` or `RUN`. |
-| `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using runscripts. Instead, use `apptainer exec` to explictly run commands. |
+| `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using runscripts since scientific application may have multiple ways to invoke the application from the command line. Instead, use `apptainer exec` to explictly run commands with their arguments. |
 | - | `USER` | Do not use. It can lead to access permission issues. |
 | - | `SHELL` | Do not use. It is not part of OCI specification. |
 
@@ -101,7 +101,7 @@ The following table explains our options where to install software.
 | - | - |
 | `/usr` | Default directory where package managers install software. Executables and libraries are on the path by default. |
 | `/usr/local` | We can install software to `/usr/local`. Executables and libraries are on the path by default. |
-| `/opt` | We can install software to `/opt` but it requires modifying `PATH` and `LD_LIBRARY_PATH` for build and runtime. |
+| `/opt` | We can install software to `/opt` but it requires manually setting paths correctly during linking, using environment variables or creating symbolic links to default locations. |
 | `/tmp` | Use `/tmp` for temporary files during the build process and ensure these files are removed after the build completes. Apptainer mounts it at runtime by default. |
 | `/home`, `/root` | Do not create files to the home directories. Apptainer mounts them at runtime by default. |
 
