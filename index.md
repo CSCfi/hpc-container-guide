@@ -83,10 +83,10 @@ We can define containers for Docker and Podman using the Dockerfile format.
 | `Bootstrap` | - | Use normally |
 | `From` | `FROM` | Use normally |
 | `%arguments` | `ARG` | We can use build arguments to specify default software versions when changing the version does not require adding control flow to the build scripts. We can override default values using the `--build-arg` flag for the build command. |
+| `%labels` | `LABEL` | Add metadata to container as name-value pairs. |
 | `%files` | `COPY` | We can add configuration files from the host to container. However, we should download dependencies via the network in `%post` or `RUN`. |
 | `%post` | `RUN` | Use normally to run shell commands (`/bin/sh` by default) to build the container. |
-| `%environment` | `ENV` | Use to define runtime environment variables. The `ENV` directive applies during build time, but `%environment` applies only in runtime. |
-| `%labels` | `LABEL` | Add metadata to container as name-value pairs. |
+| `%environment` | `ENV` | Use to define runtime environment variables. The `ENV` directive applies during build time, but `%environment` applies only in runtime. Build time environment variables on Apptainer should be defined in `%post`. |
 | `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using runscripts since scientific application may have multiple ways to invoke the application from the command line. Instead, use `apptainer exec` to explictly run commands with their arguments. |
 | - | `USER` | Do not use. It can lead to access permission issues. |
 | - | `SHELL` | Do not use. It is not part of OCI specification. |
@@ -344,8 +344,8 @@ Large containers should be built on a Slurm job.
 We should point the cache and tmp directories to fast local disk.
 
 ```bash
-export APPTAINER_CACHEDIR=$TMPDIR  # should point to a fast local disk
-export APPTAINER_TMPDIR=$TMPDIR  # should points to a fast local disk
+export APPTAINER_CACHEDIR=$TMPDIR
+export APPTAINER_TMPDIR=$TMPDIR
 apptainer build sciapp.sif sciapp.def
 ```
 
