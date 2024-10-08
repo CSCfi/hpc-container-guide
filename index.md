@@ -2,11 +2,12 @@
 ## Introduction
 These guidelines provide general principles and concrete examples for containerizing scientific applications used in HPC clusters.
 This contrasts with containers for network applications used in cloud environments.
-We assume basic knowledge of the Linux operating system, shell scripting, and software building and installation on Linux.
+We assume basic knowledge of the Linux operating system, shell scripting, and building, installing and packaging software on Linux.
 
-A scientific application consists of the application software and various software dependencies.
-We assume that the application has a [command line interface](https://clig.dev/) and can be configured via command line options, environment variables, configuration files, or a combination of these.
-Our focus is on scientific applications that run as batch processes on HPC clusters, reading input data from input files and writing output data to output files.
+A scientific application consists of the application and its dependencies.
+We assume that the application has a [command line interface](https://clig.dev/) to run it.
+We focus on a typical scientific application that reads input data from disk and  writes output data to disk.
+It may run as an interactive application or as batch job.
 
 We assume that the application is developed using a version control system, such as Git, and follows a systematic versioning scheme, such as [Semantic Versioning](https://semver.org/), to install a specific version of the software.
 Additionally, we assume that the source code is hosted and software releases are available on the web, using platforms like GitHub or GitLab, enabling easy download.
@@ -14,13 +15,11 @@ Additionally, we assume that the source code is hosted and software releases are
 Apptainer is the primary technology used to run and build containers for HPC clusters.
 Formerly known as Singularity, it was renamed Apptainer when it moved under the Linux Foundation.
 Sylabs maintains a fork of Singularity named SingularityCE, which has minor implementation differences compared to Apptainer.
-The command line interfaces of Apptainer and Singularity are similar and can be used interchangeably.
-
-Furthermore, Docker can be used to build Docker containers, and Podman can be used to build OCI containers that run on HPC clusters using Apptainer.
-Internally, Podman uses Buildah to build [OCI](https://opencontainers.org/) containers, and it is possible to use Buildah directly if necessary.
+The command line interfaces of Apptainer and Singularity are similar and we use them interchangeably.
+Furthermore, Docker can be used to build Docker containers, and Podman can be used to build [OCI](https://opencontainers.org/) containers that run on HPC clusters using Apptainer.
 
 We build on top on the excellent [Apptainer documentation](https://apptainer.org/docs/user/main/index.html).
-We also take inspirationsl from [Octave's dockerfiles](https://github.com/gnu-octave/docker) which provide great example of HPC compatible containers of a complex scientific application.
+We also take inspiration from [Octave's dockerfiles](https://github.com/gnu-octave/docker) which provide great example of HPC compatible containers of a complex scientific application.
 
 
 ## Containerized application
@@ -94,7 +93,7 @@ We can define containers for Docker and Podman using the Dockerfile format.
 It is best to avoid other keywords to keep containers simple and easier to convert to OCI container definitions which we discuss later.
 
 Inside the container, software is installed as the root user, therefore we don't need to use the `sudo` command.
-We should install all software to system locations.
+We should install all software to system directories typically to `/usr/local` or `/opt` and ensure that all installed files are world-readable.
 The following table explains our options where to install software.
 
 | Directory | Recommendation |
@@ -106,14 +105,8 @@ The following table explains our options where to install software.
 | `/home`, `/root` | Do not create files to the home directories. Apptainer mounts them at runtime by default. |
 
 Given installation directory `$PREFIX`, the convention is to place executables to `$PREFIX/bin` directory, shared libraries to `$PREFIX/lib` directory, configurations `$PREFIX/etc` and headers to `$PREFIX/include`.
-Ensure all installed files are world-readable.
 For more details about Linux file system convetions, see [File Hierarchy Standard (FHS)](https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard).
-
-In HPC environments, we should point Apptainer cache and temporary directories to a sane location by setting the `APPTAINER_CACHEDIR` and `APPTAINER_TMPDIR` environment variables.
-For example, we can set cache directory to a shared location if we are working in a project and temporary directory to fast local disk.
-
-We can build apptainer containers using `apptainer build`.
-We can build containers using `docker build` and `podman build`.
+The examples will showcase building containers in more detail.
 
 
 ### Running containers
@@ -134,14 +127,13 @@ Apptainer will bind mount certain directories by default such as the home direct
 
 
 ### Managing containers
-We should place container definitions into a separate repository instead of placing them to the same repository as the application source code.
+We should place container definitions into a separate version-controlled repository instead of placing them to the same repository as the application source code.
 The separation makes the separation between the application source code and the container definitions explicit.
 
 <!--
-- version controlling container definitions
-- versioning containers
-- storing containers into container registry
-- automatically building containers.
+- tag container images
+- storing containers into container registry to share them
+- automatically building containers to operationalize software deployment
 -->
 
 
@@ -150,6 +142,33 @@ In the following examples, we demonstrate how to create and run a container for 
 We demonstrate Apptainer, Docker and Podman.
 We install the dependencies to run and build `sciapp` and them we install `sciapp` itself by building it from the source.
 We also show how to push and pull container images to a container registry such as [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+
+
+### Installing without container
+Assuming we have `git`, `gcc` and `make` installed, we can clone the repository and build it.
+Clone the repository
+
+```bash
+git clone https://github.com/jaantollander/sciapp
+```
+
+Build the application
+
+```bash
+make
+```
+
+Install the application locally
+
+```bash
+make install "PREFIX=$HOME/.local"
+```
+
+Assuming that `$HOME/local/bin` diretory is on the path, we can invoke the application.
+
+```bash
+sciapp input.txt output.txt
+```
 
 
 ### Apptainer
@@ -341,10 +360,9 @@ The following is an example of building and running the previous Apptainer examp
 
 We can build small container on the login node.
 Large containers should be built on a Slurm job.
-We should point the cache and tmp directories to fast local disk.
+We should point Apptainer temporary directory to a location that has enough space such as fast local disk as the default value points to `/tmp` which may not have enough space on HPC clusters.
 
 ```bash
-export APPTAINER_CACHEDIR=$TMPDIR
 export APPTAINER_TMPDIR=$TMPDIR
 apptainer build sciapp.sif sciapp.def
 ```
