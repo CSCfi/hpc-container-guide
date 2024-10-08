@@ -1,4 +1,4 @@
-# Guidelines for containerizing scientific applications for HPC clusters
+# HPC container guide
 ## Introduction
 These guidelines provide general principles and concrete examples for containerizing scientific applications used in HPC clusters.
 This contrasts with containers for network applications used in cloud environments.
