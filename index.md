@@ -5,7 +5,7 @@ This approach is different from containerizing network applications that are typ
 We assume that the reader has a basic understanding of the Linux operating system, shell scripting, and the processes involved in building, installing, and packaging software on Linux.
 
 A scientific application is composed of the application itself along with its necessary dependencies.
-We assume that the application is equipped with a command-line interface, which allows users to execute it through command-line commands.
+We assume that the application is equipped with a [command-line interface](https://clig.dev/), which allows users to execute it through command-line commands.
 Our focus is on a typical scientific application that processes input data from a disk and outputs data back to a disk.
 Such an application may operate as an interactive application or be executed as a batch job.
 For the installation of the application, we assume that it is developed using a version control system, such as Git, adheres to a systematic versioning scheme, and that its source code is hosted online with software releases readily available on the web to facilitate programmatic installation.
@@ -26,13 +26,13 @@ We also draw inspiration from [Octave's dockerfiles](https://github.com/gnu-octa
 ![Illustration of an application in a container.](./images/hpc-containers.png)
 
 The above figure illustrates a scientific application and its dependencies.
-When running software normally without a container, the application is installed in some user directory, and the dependencies may come from system or user-installed locations.
+When running software normally without a container, the application is installed in a user directory, and the dependencies may come from system or user-installed locations.
 
 The dashed line indicates the parts that are "containerized" when using a software container.
 The application and its dependencies are installed into the container.
 Directories that are outside of the container, such as network directories and local disks, must be bind-mounted to the container to make them accessible from the container.
 Containerized software is invoked via a container runtime such as Apptainer or Singularity.
-The host and guest OS can be different.
+The host and guest operating systems can be different.
 
 
 ## Reasons to use containers on HPC clusters
