@@ -24,25 +24,25 @@ We also take inspiration from [Octave's dockerfiles](https://github.com/gnu-octa
 ![Illustration of an application in a container.](./images/hpc-containers.png)
 
 The above figure illustrates a scientific application and its dependencies.
-When running a software normally without a container the application is installed to some user directory and the depedencies may come from system or user installed locations.
+When running software normally without a container, the application is installed in some user directory, and the dependencies may come from system or user-installed locations.
 
 The dashed line indicates the parts that are "containerized" when using a software container.
-Application and its dependencies are installed into the container.
-Directories that are outside of the container such as network directories and local disk must be bind mounted to the container to make them accessible from the container.
-Containerized software is invoked via a container runtime such Apptainer or Singularity.
+The application and its dependencies are installed into the container.
+Directories that are outside of the container, such as network directories and local disks, must be bind-mounted to the container to make them accessible from the container.
+Containerized software is invoked via a container runtime such as Apptainer or Singularity.
 The host and guest OS can be different.
 
 
 ## Reasons to use containers on HPC clusters
-Using containers on HPC clusters improve portability, consistency, reproducibility, and dependency management of scientific applications.
+Using containers on HPC clusters improves portability, consistency, reproducibility, and dependency management of scientific applications.
 By packaging applications and their dependencies, containers ensure consistent execution across different environments, reducing "works on my machine" issues and facilitating the movement of workloads between systems.
 This containerization approach greatly enhances reproducibility in scientific research, allowing researchers to share exact experimental environments and replicate results more easily.
 Additionally, containers effectively manage dependencies by encapsulating all necessary libraries, eliminating conflicts between software versions or incompatible libraries.
 This is particularly beneficial in multi-user HPC environments where diverse software requirements are common.
 
-Containers also reduce the load to the parallel file system on HPC clusters.
-Apptainer encapsulates entire software environments into single, compressed file, drastically reducing the number of files and disk space used on the parallel file system.
-Also, loading single large file requires fewer file system operations leading to faster startup time and less burden on the parallel file system.
+Containers also reduce the load on the parallel file system on HPC clusters.
+Apptainer encapsulates entire software environments into a single, compressed file, drastically reducing the number of files and disk space used on the parallel file system.
+Also, loading a single large file requires fewer file system operations, leading to faster startup times and less burden on the parallel file system.
 
 
 ## General principles
@@ -76,17 +76,17 @@ We can define containers for Docker and Podman using the Dockerfile format.
 
 | [Apptainer](https://apptainer.org/docs/user/main/definition_files.html) | [Dockerfile](https://docs.docker.com/reference/dockerfile/) | Recommendation |
 | - | - | - |
-| `.def` | `.dockerfile` | File extension to use for the definition file. Plain `Dockerfile` is not always sufficient as complex applications may require multiple definition files. |
-| `Bootstrap` | - | Use normally |
-| `From` | `FROM` | Use normally |
+| `.def` | `.dockerfile` | File extension to use for the definition file. A plain `Dockerfile` is not always sufficient as complex applications may require multiple definition files. |
+| `Bootstrap` | - | Use normally. |
+| `From` | `FROM` | Use normally. |
 | `%arguments` | `ARG` | We can use build arguments to specify default software versions when changing the version does not require adding control flow to the build scripts. We can override default values using the `--build-arg` flag for the build command. |
-| `%labels` | `LABEL` | Add metadata to container as name-value pairs. |
-| `%files` | `COPY` | We can add configuration files from the host to container. However, we should download dependencies via the network in `%post` or `RUN`. |
+| `%labels` | `LABEL` | Add metadata to the container as name-value pairs. |
+| `%files` | `COPY` | We can add configuration files from the host to the container. However, we should download dependencies via the network in `%post` or `RUN`. |
 | `%post` | `RUN` | Use normally to run shell commands (`/bin/sh` by default) to build the container. |
-| `%environment` | `ENV` | Use to define runtime environment variables. The `ENV` directive applies during build time, but `%environment` applies only in runtime. Build time environment variables on Apptainer should be defined in `%post`. |
-| `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using runscripts since scientific application may have multiple ways to invoke the application from the command-line. Instead, use `apptainer exec` to explictly run commands with their arguments. |
+| `%environment` | `ENV` | Use to define runtime environment variables. The `ENV` directive applies during build time, but `%environment` applies only at runtime. Build-time environment variables on Apptainer should be defined in `%post`. |
+| `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using run scripts since scientific applications may have multiple ways to invoke the application from the command line. Instead, use `apptainer exec` to explicitly run commands with their arguments. |
 | - | `USER` | Do not use. It can lead to access permission issues. |
-| - | `SHELL` | Do not use. It is not part of OCI specification. |
+| - | `SHELL` | Do not use. It is not part of the OCI specification. |
 
 It is best to avoid other keywords to keep containers simple and easier to convert to OCI container definitions which we discuss later.
 
