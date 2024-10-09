@@ -25,14 +25,14 @@ We also draw inspiration from [Octave's dockerfiles](https://github.com/gnu-octa
 ## Containerized application
 ![Illustration of an application in a container.](./images/hpc-containers.png)
 
-The above figure illustrates a scientific application and its dependencies.
-When running software normally without a container, the application is installed in a user directory, and the dependencies may come from system or user-installed locations.
+The figure above illustrates a scientific application along with its dependencies.
+When running software without a container, the application is typically installed in a user directory, and its dependencies may originate from either system or user-installed locations.
 
-The dashed line indicates the parts that are "containerized" when using a software container.
-The application and its dependencies are installed into the container.
-Directories that are outside of the container, such as network directories and local disks, must be bind-mounted to the container to make them accessible from the container.
-Containerized software is invoked via a container runtime such as Apptainer or Singularity.
-The host and guest operating systems can be different.
+The dashed line in the illustration indicates the components that are "containerized" when using a software container.
+In this setup, both the application and its dependencies are installed within the container.
+Directories that reside outside the container, such as network directories and local disks, must be bind-mounted to the container to ensure they are accessible from within the container.
+Containerized software is executed using a container runtime, such as Apptainer or Singularity.
+It is possible for the host operating system and the guest operating system within the container to be different.
 
 
 ## Reasons to use containers on HPC clusters
@@ -138,40 +138,56 @@ The separation makes the separation between the application source code and the 
 
 
 ## Example: Containerizing a scientific application
-In the following examples, we demonstrate how to create and run a container for a small scientific application called [sciapp](https://github.com/jaantollander/sciapp).
-We demonstrate Apptainer, Docker and Podman.
-We install the dependencies to run and build `sciapp` and them we install `sciapp` itself by building it from the source.
-We also show how to push and pull container images to a container registry such as [GitHub Container Registry](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry)
+In the following examples, we demonstrate how to create and run a container for a small scientific application called [`sciapp`](https://github.com/jaantollander/sciapp).
+We demonstrate the use of Apptainer, Docker, and Podman.
+We install the dependencies required to run and build `sciapp`, and then we install `sciapp` itself by building it from the source.
+We also show how to push and pull container images to a container registry, such as the [GitHub Container Registry (GHCR)](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
 
 
-### Installing without container
-Assuming we have `git`, `gcc` and `make` installed, we can clone the repository and build it.
-Clone the repository
+### Installing locally
+Let's start by cloning the repository and then changing our working directory to the cloned repository.
 
 ```bash
 git clone https://github.com/jaantollander/sciapp
+cd sciapp
 ```
 
-Build the application
+Next, we can build the application, assuming that `make` and `gcc` are installed.
 
 ```bash
 make
 ```
 
-Install the application locally
+Let's add the build directory to the PATH so we can call the application from the command line.
 
 ```bash
-make install "PREFIX=$HOME/.local"
+export PATH=$PWD/build:$PATH
 ```
 
-Assuming that `$HOME/local/bin` diretory is on the path, we can invoke the application.
+Now, let's create an input file named `input.txt` with the following lines:
+
+```text
+1.0
+2.0
+3.0
+```
+
+We can then invoke the application using the following command:
 
 ```bash
 sciapp input.txt output.txt
 ```
 
+If everything worked correctly, the application will produce an output file named `output.txt` with the following content:
 
-### Apptainer
+```text
+Average: 2.00
+```
+
+Next, let's see how to containerize the application.
+
+
+### Containerizing with Apptainer
 Let's start by writing the following Apptainer definition to `sciapp.def` file:
 
 ```sh
@@ -217,25 +233,10 @@ Next, we build the container as follows:
 apptainer build sciapp.sif sciapp.def
 ```
 
-Once the container is built, we can test it.
-Let's create an input file `input.txt` with the following lines:
-
-```text
-1.0
-2.0
-3.0
-```
-
-Let's run the containerized application and supply path to the input and output files as arguments.
+Let's run the containerized application and supply path to the input and output files as arguments as we did previously.
 
 ```sh
 apptainer exec sciapp.sif sciapp input.txt output.txt
-```
-
-If everything worked correctly, the application produces an output file `output.txt` with the following output:
-
-```text
-Average: 2.00
 ```
 
 We can store Apptainer images to container registries that support [ORAS](https://oras.land/) such as GitHub Container Registry as follows:
@@ -254,7 +255,7 @@ apptainer pull sciapp.sif oras://ghcr.io/<username>/sciapp:0.2.0
 In the next examples, we build Docker container and OCI container with Podman for the same application and convert it to Apptainer container.
 
 
-### Apptainer on a HPC cluster
+### Containerizing with Apptainer on a HPC cluster
 We can building and running container on a HPC cluster that has Apptainer or Singularity instaleld and fakeroot enabled.
 The following is an example of building and running the previous Apptainer example on the CSC's Puhti cluster.
 
@@ -276,7 +277,7 @@ apptainer exec \
 ```
 
 
-### Docker
+### Containerizing with Docker
 Let's start by writing the following Dockerfile to `sciapp.dockerfile` file:
 
 ```dockerfile
@@ -345,7 +346,7 @@ apptainer pull sciapp.sif docker://ghcr.io/<username>/sciapp:0.2.0
 ```
 
 
-### Podman
+### Containerizing with Podman
 We use the Dockerfile that we defined in the Docker example.
 We can build the container with Podman as follows:
 
