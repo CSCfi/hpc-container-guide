@@ -2,24 +2,22 @@
 ## Introduction
 These guidelines provide general principles and concrete examples for containerizing scientific applications used in HPC clusters.
 This contrasts with containers for network applications used in cloud environments.
-We assume basic knowledge of the Linux operating system, shell scripting, and building, installing and packaging software on Linux.
+We assume basic knowledge of the Linux operating system, shell scripting, and building, installing, and packaging software on Linux.
 
-A scientific application consists of the application and its dependencies.
-We assume that the application has a [command line interface](https://clig.dev/) to run it.
-We focus on a typical scientific application that reads input data from disk and  writes output data to disk.
-It may run as an interactive application or as batch job.
-
-We assume that the application is developed using a version control system, such as Git, and follows a systematic versioning scheme, such as [Semantic Versioning](https://semver.org/), to install a specific version of the software.
-Additionally, we assume that the source code is hosted and software releases are available on the web, using platforms like GitHub or GitLab, enabling easy download.
+A scientific application consists of the application itself and its dependencies.
+We assume that the application has a [command-line interface](https://clig.dev/) to run it.
+We focus on a typical scientific application that reads input data from disk and writes output data to disk.
+It may run as an interactive application or as a batch job.
+For installing the application, we assume that it is developed using a version control system (Git), follows a systematic versioning scheme, and that the source code is hosted online with software releases available on the web to facilitate programmatic installation.
 
 Apptainer is the primary technology used to run and build containers for HPC clusters.
 Formerly known as Singularity, it was renamed Apptainer when it moved under the Linux Foundation.
 Sylabs maintains a fork of Singularity named SingularityCE, which has minor implementation differences compared to Apptainer.
-The command line interfaces of Apptainer and Singularity are similar and we use them interchangeably.
+The command-line interfaces of Apptainer and Singularity are similar, and we use them interchangeably.
 Furthermore, Docker can be used to build Docker containers, and Podman can be used to build [OCI](https://opencontainers.org/) containers that run on HPC clusters using Apptainer.
 
-We build on top on the excellent [Apptainer documentation](https://apptainer.org/docs/user/main/index.html).
-We also take inspiration from [Octave's dockerfiles](https://github.com/gnu-octave/docker) which provide great example of HPC compatible containers of a complex scientific application.
+We build on top of the excellent [Apptainer documentation](https://apptainer.org/docs/user/main/index.html).
+We also take inspiration from [Octave's dockerfiles](https://github.com/gnu-octave/docker), which provide great examples of HPC-compatible containers for a complex scientific application.
 
 
 ## Containerized application
@@ -86,7 +84,7 @@ We can define containers for Docker and Podman using the Dockerfile format.
 | `%files` | `COPY` | We can add configuration files from the host to container. However, we should download dependencies via the network in `%post` or `RUN`. |
 | `%post` | `RUN` | Use normally to run shell commands (`/bin/sh` by default) to build the container. |
 | `%environment` | `ENV` | Use to define runtime environment variables. The `ENV` directive applies during build time, but `%environment` applies only in runtime. Build time environment variables on Apptainer should be defined in `%post`. |
-| `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using runscripts since scientific application may have multiple ways to invoke the application from the command line. Instead, use `apptainer exec` to explictly run commands with their arguments. |
+| `%runscript`, `%startscript` | `CMD`, `ENTRYPOINT` | Avoid using runscripts since scientific application may have multiple ways to invoke the application from the command-line. Instead, use `apptainer exec` to explictly run commands with their arguments. |
 | - | `USER` | Do not use. It can lead to access permission issues. |
 | - | `SHELL` | Do not use. It is not part of OCI specification. |
 
@@ -254,6 +252,28 @@ apptainer pull sciapp.sif oras://ghcr.io/<username>/sciapp:0.2.0
 In the next examples, we build Docker container and OCI container with Podman for the same application and convert it to Apptainer container.
 
 
+### Apptainer on a HPC cluster
+We can building and running container on a HPC cluster that has Apptainer or Singularity instaleld and fakeroot enabled.
+The following is an example of building and running the previous Apptainer example on the CSC's Puhti cluster.
+
+We can build small container on the login node.
+Large containers should be built on a Slurm job.
+We should point Apptainer temporary directory to a location that has enough space such as fast local disk as the default value points to `/tmp` which may not have enough space on HPC clusters.
+
+```bash
+export APPTAINER_TMPDIR=$TMPDIR
+apptainer build sciapp.sif sciapp.def
+```
+
+When running the container we need to bind mount cluster specific directories such as `/users`, `/projappl` and `/scratch` in Puhti if we want to use them.
+
+```bash
+apptainer exec \
+    --bind /users --bind /projappl --bind /scratch \
+    sciapp.sif sciapp input.txt output.txt
+```
+
+
 ### Docker
 Let's start by writing the following Dockerfile to `sciapp.dockerfile` file:
 
@@ -351,26 +371,4 @@ We can pull the container with Apptainer as follows:
 
 ```sh
 apptainer pull sciapp.sif docker://ghcr.io/<username>/sciapp:0.2.0
-```
-
-
-### Apptainer on a HPC cluster
-We can building and running container on a HPC cluster that has Apptainer or Singularity instaleld and fakeroot enabled.
-The following is an example of building and running the previous Apptainer example on the CSC's Puhti cluster.
-
-We can build small container on the login node.
-Large containers should be built on a Slurm job.
-We should point Apptainer temporary directory to a location that has enough space such as fast local disk as the default value points to `/tmp` which may not have enough space on HPC clusters.
-
-```bash
-export APPTAINER_TMPDIR=$TMPDIR
-apptainer build sciapp.sif sciapp.def
-```
-
-When running the container we need to bind mount cluster specific directories such as `/users`, `/projappl` and `/scratch` in Puhti if we want to use them.
-
-```bash
-apptainer exec \
-    --bind /users --bind /projappl --bind /scratch \
-    sciapp.sif sciapp input.txt output.txt
 ```
