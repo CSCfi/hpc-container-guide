@@ -1,23 +1,25 @@
 # HPC container guide
 ## Introduction
-These guidelines provide general principles and concrete examples for containerizing scientific applications used in HPC clusters.
-This contrasts with containers for network applications used in cloud environments.
-We assume basic knowledge of the Linux operating system, shell scripting, and building, installing, and packaging software on Linux.
+These guidelines offer general principles and specific examples for containerizing scientific applications that are utilized in high-performance computing (HPC) clusters.
+This approach is different from containerizing network applications that are typically used in cloud environments.
+We assume that the reader has a basic understanding of the Linux operating system, shell scripting, and the processes involved in building, installing, and packaging software on Linux.
 
-A scientific application consists of the application itself and its dependencies.
-We assume that the application has a [command-line interface](https://clig.dev/) to run it.
-We focus on a typical scientific application that reads input data from disk and writes output data to disk.
-It may run as an interactive application or as a batch job.
-For installing the application, we assume that it is developed using a version control system (Git), follows a systematic versioning scheme, and that the source code is hosted online with software releases available on the web to facilitate programmatic installation.
+A scientific application is composed of the application itself along with its necessary dependencies.
+We assume that the application is equipped with a command-line interface, which allows users to execute it through command-line commands.
+Our focus is on a typical scientific application that processes input data from a disk and outputs data back to a disk.
+Such an application may operate as an interactive application or be executed as a batch job.
+For the installation of the application, we assume that it is developed using a version control system, such as Git, adheres to a systematic versioning scheme, and that its source code is hosted online with software releases readily available on the web to facilitate programmatic installation.
 
-Apptainer is the primary technology used to run and build containers for HPC clusters.
-Formerly known as Singularity, it was renamed Apptainer when it moved under the Linux Foundation.
-Sylabs maintains a fork of Singularity named SingularityCE, which has minor implementation differences compared to Apptainer.
-The command-line interfaces of Apptainer and Singularity are similar, and we use them interchangeably.
-Furthermore, Docker can be used to build Docker containers, and Podman can be used to build [OCI](https://opencontainers.org/) containers that run on HPC clusters using Apptainer.
+Apptainer is the primary technology used to run and build containers specifically designed for HPC clusters.
+This technology was formerly known as Singularity, but it was renamed Apptainer when it became part of the Linux Foundation, which is an organization that supports the growth of open-source projects.
+Sylabs, a company that focuses on container technology, maintains a fork of the original Singularity project called SingularityCE.
+This version has minor implementation differences compared to Apptainer, which may affect certain functionalities or performance aspects.
+The command-line interfaces of Apptainer and Singularity are quite similar, allowing users to use them interchangeably without significant changes to their workflow.
+Additionally, Docker is a popular tool that can be used to build Docker containers, while Podman is another tool that can be used to build Open Container Initiative (OCI) containers.
+These OCI containers can be run on HPC clusters using Apptainer, providing flexibility in container management.
 
-We build on top of the excellent [Apptainer documentation](https://apptainer.org/docs/user/main/index.html).
-We also take inspiration from [Octave's dockerfiles](https://github.com/gnu-octave/docker), which provide great examples of HPC-compatible containers for a complex scientific application.
+We build our work on top of the excellent [Apptainer documentation](https://apptainer.org/docs/user/main/index.html), which provides comprehensive guidance for users.
+We also draw inspiration from [Octave's dockerfiles](https://github.com/gnu-octave/docker), which offer great examples of HPC-compatible containers tailored for complex scientific applications.
 
 
 ## Containerized application
